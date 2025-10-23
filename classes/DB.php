@@ -72,27 +72,28 @@
         }
 
         public function insert($table, $fields = array()) {
-            if(count($fields)) {
+            if (empty($table) || !is_string($table)) {
+                return false;
+            }
+            if (count($fields)) {
                 $keys = array_keys($fields);
-                $values = null;
+                $placeholders = '';
                 $x = 1;
 
-                foreach($fields as $field) {
-                    $values .= '? ';
-
-                    if($x < count($fields)) {
-                        $values .= ', ';
+                foreach ($fields as $_) {
+                    $placeholders .= '?';
+                    if ($x < count($fields)) {
+                        $placeholders .= ', ';
                     }
                     $x++;
                 }
-                // die($values);
 
-                $sql = "INSERT INTO users (`". implode('`, `', $keys) ."`) VALUES ({$values})";
+                $columnsSql = "`" . implode("`, `", $keys) . "`";
+                $sql = "INSERT INTO {$table} ({$columnsSql}) VALUES ({$placeholders})";
 
-                if(!$this -> query($sql, $fields) -> error()){
+                if (!$this->query($sql, array_values($fields))->error()) {
                     return true;
                 }
-                // echo $sql;
             }
             return false;
         }
